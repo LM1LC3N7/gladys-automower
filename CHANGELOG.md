@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-14
+
 ### Added
 
 - Husqvarna Automower robotic mowers through the official Automower Connect
@@ -31,3 +33,6 @@ the notes of the version's GitHub Release.
 - A "Robotic mower" dashboard widget: battery, next start, activity, state,
   mode, error, connection, and Start / Park / Pause / Resume buttons.
 - A "Test Husqvarna" button.
+
+[Unreleased]: https://github.com/LM1LC3N7/gladys-automower/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/LM1LC3N7/gladys-automower/releases/tag/v0.1.1
