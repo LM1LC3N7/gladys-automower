@@ -1,0 +1,774 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "Husqvarna Automower",
+  "description": {
+    "en": "Unofficial connector: Automower robotic mowers, status, battery, start, park and errors.",
+    "fr": "Connecteur non officiel : tondeuses robots Automower, état, batterie, départ, retour et erreurs."
+  },
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/lm1lc3n7/gladys-automower:0.1.0",
+  "gladys_version": ">=5.1.0",
+  "cover_image": "https://raw.githubusercontent.com/LM1LC3N7/gladys-automower/main/cover.png",
+  "categories": ["appliances"],
+  "transports": ["cloud"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Husqvarna Automower in Gladys",
+        "fr": "Les tondeuses Husqvarna Automower dans Gladys"
+      },
+      "description": {
+        "en": "Unofficial connector, not affiliated with Husqvarna. It reads your robotic mowers through the official Automower Connect API with your own Developer Portal application: one device per mower (state, battery, activity, mode, error, connection, next start, a mow / pause select and a return to dock button), live events over a websocket, scene triggers on errors, activity changes, the end of mowing and a lost connection, scene actions to start, park, pause and resume the schedule, and a dashboard widget. Automower is a trademark of Husqvarna AB.",
+        "fr": "Connecteur non officiel, sans lien avec Husqvarna. Il lit vos tondeuses robots via l'API officielle Automower Connect avec votre propre application du portail développeur : un appareil par tondeuse (état, batterie, activité, mode, erreur, connexion, prochain départ, un choix tondre / pause et un bouton de retour à la base), des événements en direct par websocket, des déclencheurs de scène sur les erreurs, les changements d'activité, la fin de la tonte et la perte de connexion, des actions de scène pour démarrer, garer, mettre en pause et reprendre le planning, et un widget. Automower est une marque de Husqvarna AB."
+      },
+      "links": [
+        {
+          "url": "https://developer.husqvarnagroup.cloud/",
+          "label": {
+            "en": "Husqvarna Developer Portal",
+            "fr": "Portail développeur Husqvarna"
+          }
+        },
+        {
+          "url": "https://developer.husqvarnagroup.cloud/apis/automower-connect-api",
+          "label": {
+            "en": "Automower Connect API",
+            "fr": "API Automower Connect"
+          }
+        },
+        {
+          "url": "https://github.com/LM1LC3N7/gladys-automower/blob/main/docs/fr.md",
+          "label": {
+            "en": "Guide (French)",
+            "fr": "Guide (français)"
+          }
+        },
+        {
+          "url": "https://github.com/LM1LC3N7/gladys-automower/blob/main/docs/en.md",
+          "label": {
+            "en": "Guide (English)",
+            "fr": "Guide (anglais)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "application",
+      "type": "section",
+      "label": {
+        "en": "Your Husqvarna application",
+        "fr": "Votre application Husqvarna"
+      },
+      "description": {
+        "en": "On the Developer Portal, sign in with your Automower Connect account, create an application (any name, redirect URL http://localhost:8080), then connect it to the \"Authentication API\" and the \"Automower Connect API\". Copy its application key and application secret below. Your mowers must be paired in the Automower Connect app.",
+        "fr": "Sur le portail développeur, connectez-vous avec votre compte Automower Connect, créez une application (nom libre, URL de redirection http://localhost:8080), puis connectez-la à « Authentication API » et à « Automower Connect API ». Copiez ci-dessous sa clé et son secret d'application. Vos tondeuses doivent être associées dans l'application Automower Connect."
+      }
+    },
+    {
+      "key": "app_key",
+      "type": "secret",
+      "required": true,
+      "label": {
+        "en": "Application key",
+        "fr": "Clé d'application"
+      },
+      "description": {
+        "en": "Stored encrypted by Gladys and only sent to Husqvarna.",
+        "fr": "Stockée chiffrée par Gladys et envoyée uniquement à Husqvarna."
+      }
+    },
+    {
+      "key": "app_secret",
+      "type": "secret",
+      "required": true,
+      "label": {
+        "en": "Application secret",
+        "fr": "Secret d'application"
+      },
+      "description": {
+        "en": "Stored encrypted by Gladys and only sent to the Husqvarna authentication service.",
+        "fr": "Stocké chiffré par Gladys et envoyé uniquement au service d'authentification Husqvarna."
+      }
+    },
+    {
+      "key": "start_minutes",
+      "type": "number",
+      "required": false,
+      "default": 180,
+      "min": 10,
+      "max": 1440,
+      "label": {
+        "en": "Mowing time of a start (minutes)",
+        "fr": "Durée de tonte d'un démarrage (minutes)"
+      },
+      "description": {
+        "en": "Used by the mow / pause select of the device, the Start button of the widget and the start scene action without a duration. The mower overrides its schedule for that long, then goes back to it.",
+        "fr": "Utilisée par le choix tondre / pause de l'appareil, le bouton Démarrer du widget et l'action de scène démarrer sans durée. La tondeuse ignore son planning pendant cette durée, puis y revient."
+      }
+    },
+    {
+      "key": "resync_minutes",
+      "type": "number",
+      "required": false,
+      "default": 30,
+      "min": 15,
+      "max": 120,
+      "label": {
+        "en": "Full refresh interval (minutes)",
+        "fr": "Intervalle de relecture complète (minutes)"
+      },
+      "description": {
+        "en": "The live events carry the changes; the whole account is read again at this pace (the connection to Husqvarna is only seen this way). Husqvarna limits the API calls per week and application: 30 minutes uses a few percent of it.",
+        "fr": "Les événements en direct apportent les changements ; tout le compte est relu à ce rythme (la connexion à Husqvarna n'est visible que de cette façon). Husqvarna limite les appels d'API par semaine et par application : 30 minutes en utilisent quelques pour cent."
+      }
+    },
+    {
+      "key": "language",
+      "type": "select",
+      "required": false,
+      "default": "fr",
+      "label": {
+        "en": "Language of the texts (activity, mode, error)",
+        "fr": "Langue des textes (activité, mode, erreur)"
+      },
+      "options": [
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français"
+          }
+        },
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais"
+          }
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "timeout_seconds": 30,
+      "label": {
+        "en": "Test Husqvarna",
+        "fr": "Tester Husqvarna"
+      },
+      "description": {
+        "en": "Gets a token, reads the mowers of the account and shows their activity, state and battery.",
+        "fr": "Obtient un jeton, lit les tondeuses du compte et affiche leur activité, leur état et leur batterie."
+      }
+    }
+  ],
+  "widgets": [
+    {
+      "key": "mower",
+      "label": {
+        "en": "Robotic mower",
+        "fr": "Tondeuse robot"
+      },
+      "description": {
+        "en": "A mower: battery, next start, activity, error, buttons to start, park, pause, resume.",
+        "fr": "Une tondeuse : batterie, départ, activité, erreur, boutons démarrer, garer, pause, reprendre."
+      },
+      "icon": "scissors",
+      "action_timeout_seconds": 30,
+      "settings": [
+        {
+          "key": "mower",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Mower (empty: the first one)",
+            "fr": "Tondeuse (vide : la première)"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "mower_error",
+      "label": {
+        "en": "Automower error",
+        "fr": "Erreur Automower"
+      },
+      "description": {
+        "en": "A mower reports an error (trapped, lifted, outside the working area...), once per error.",
+        "fr": "Une tondeuse signale une erreur (coincée, soulevée, hors de la zone de travail...), une fois par erreur."
+      },
+      "fields": [
+        {
+          "key": "mower",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Mower (empty: any)",
+            "fr": "Tondeuse (vide : n'importe laquelle)"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "mower_name",
+          "type": "string",
+          "label": {
+            "en": "Mower",
+            "fr": "Tondeuse"
+          }
+        },
+        {
+          "key": "code",
+          "type": "number",
+          "label": {
+            "en": "Error code",
+            "fr": "Code d'erreur"
+          }
+        },
+        {
+          "key": "error_en",
+          "type": "string",
+          "label": {
+            "en": "Error (English)",
+            "fr": "Erreur (anglais)"
+          }
+        },
+        {
+          "key": "error_fr",
+          "type": "string",
+          "label": {
+            "en": "Error (French)",
+            "fr": "Erreur (français)"
+          }
+        },
+        {
+          "key": "error_at",
+          "type": "string",
+          "label": {
+            "en": "Error time (ISO)",
+            "fr": "Heure de l'erreur (ISO)"
+          }
+        },
+        {
+          "key": "state",
+          "type": "string",
+          "label": {
+            "en": "Mower state",
+            "fr": "État de la tondeuse"
+          }
+        }
+      ]
+    },
+    {
+      "key": "activity_changed",
+      "label": {
+        "en": "Automower activity changed",
+        "fr": "Activité Automower changée"
+      },
+      "description": {
+        "en": "A mower starts mowing, goes home, charges, parks, leaves or stops in the garden.",
+        "fr": "Une tondeuse se met à tondre, rentre, charge, se gare, repart ou s'arrête dans le jardin."
+      },
+      "fields": [
+        {
+          "key": "mower",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Mower (empty: any)",
+            "fr": "Tondeuse (vide : n'importe laquelle)"
+          }
+        },
+        {
+          "key": "activity",
+          "type": "select",
+          "required": false,
+          "label": {
+            "en": "New activity (empty: any)",
+            "fr": "Nouvelle activité (vide : n'importe laquelle)"
+          },
+          "options": [
+            {
+              "value": "mowing",
+              "label": {
+                "en": "Mowing",
+                "fr": "Tonte"
+              }
+            },
+            {
+              "value": "going_home",
+              "label": {
+                "en": "Going home",
+                "fr": "Retour à la station"
+              }
+            },
+            {
+              "value": "charging",
+              "label": {
+                "en": "Charging",
+                "fr": "En charge"
+              }
+            },
+            {
+              "value": "leaving",
+              "label": {
+                "en": "Leaving the station",
+                "fr": "Départ de la station"
+              }
+            },
+            {
+              "value": "parked_in_cs",
+              "label": {
+                "en": "Parked in the station",
+                "fr": "Garée à la station"
+              }
+            },
+            {
+              "value": "stopped_in_garden",
+              "label": {
+                "en": "Stopped in the garden",
+                "fr": "Arrêtée dans le jardin"
+              }
+            },
+            {
+              "value": "not_applicable",
+              "label": {
+                "en": "Manual start required",
+                "fr": "Démarrage manuel requis"
+              }
+            },
+            {
+              "value": "unknown",
+              "label": {
+                "en": "Unknown",
+                "fr": "Inconnue"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "mower_name",
+          "type": "string",
+          "label": {
+            "en": "Mower",
+            "fr": "Tondeuse"
+          }
+        },
+        {
+          "key": "activity",
+          "type": "string",
+          "label": {
+            "en": "New activity",
+            "fr": "Nouvelle activité"
+          }
+        },
+        {
+          "key": "previous_activity",
+          "type": "string",
+          "label": {
+            "en": "Previous activity",
+            "fr": "Activité précédente"
+          }
+        },
+        {
+          "key": "state",
+          "type": "string",
+          "label": {
+            "en": "Mower state",
+            "fr": "État de la tondeuse"
+          }
+        },
+        {
+          "key": "battery",
+          "type": "number",
+          "label": {
+            "en": "Battery (%)",
+            "fr": "Batterie (%)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "mowing_finished",
+      "label": {
+        "en": "Automower mowing finished",
+        "fr": "Tonte Automower terminée"
+      },
+      "description": {
+        "en": "A mowing session ended: the mower parked in its station, stopped in the garden or needs a manual start.",
+        "fr": "Une session de tonte est finie : la tondeuse s'est garée à la station, s'est arrêtée dans le jardin ou attend un démarrage manuel."
+      },
+      "fields": [
+        {
+          "key": "mower",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Mower (empty: any)",
+            "fr": "Tondeuse (vide : n'importe laquelle)"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "mower_name",
+          "type": "string",
+          "label": {
+            "en": "Mower",
+            "fr": "Tondeuse"
+          }
+        },
+        {
+          "key": "activity",
+          "type": "string",
+          "label": {
+            "en": "Where it ended (activity)",
+            "fr": "Où elle s'est arrêtée (activité)"
+          }
+        },
+        {
+          "key": "minutes",
+          "type": "number",
+          "label": {
+            "en": "Session length (min, empty if unknown)",
+            "fr": "Durée de la session (min, vide si inconnue)"
+          }
+        },
+        {
+          "key": "battery",
+          "type": "number",
+          "label": {
+            "en": "Battery (%)",
+            "fr": "Batterie (%)"
+          }
+        },
+        {
+          "key": "error_code",
+          "type": "number",
+          "label": {
+            "en": "Error code (0: none)",
+            "fr": "Code d'erreur (0 : aucune)"
+          }
+        },
+        {
+          "key": "finished_at",
+          "type": "string",
+          "label": {
+            "en": "Finished at (ISO)",
+            "fr": "Terminée à (ISO)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "mower_disconnected",
+      "label": {
+        "en": "Automower disconnected",
+        "fr": "Automower déconnectée"
+      },
+      "description": {
+        "en": "A mower lost its connection to the Husqvarna cloud (seen at the next full refresh).",
+        "fr": "Une tondeuse a perdu sa connexion au cloud Husqvarna (vu à la relecture complète suivante)."
+      },
+      "fields": [
+        {
+          "key": "mower",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Mower (empty: any)",
+            "fr": "Tondeuse (vide : n'importe laquelle)"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "mower_name",
+          "type": "string",
+          "label": {
+            "en": "Mower",
+            "fr": "Tondeuse"
+          }
+        },
+        {
+          "key": "last_seen",
+          "type": "string",
+          "label": {
+            "en": "Last status received (ISO)",
+            "fr": "Dernier état reçu (ISO)"
+          }
+        },
+        {
+          "key": "activity",
+          "type": "string",
+          "label": {
+            "en": "Last known activity",
+            "fr": "Dernière activité connue"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "start",
+      "label": {
+        "en": "Automower: start mowing",
+        "fr": "Automower : démarrer la tonte"
+      },
+      "description": {
+        "en": "Mow for a duration, overriding the schedule. A mower in its station leaves once fully charged.",
+        "fr": "Tondre pendant une durée, en ignorant le planning. Une tondeuse à la station part une fois chargée."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "mower",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Mower (empty: every mower)",
+            "fr": "Tondeuse (vide : toutes)"
+          }
+        },
+        {
+          "key": "duration",
+          "type": "number",
+          "required": false,
+          "min": 1,
+          "max": 65000,
+          "label": {
+            "en": "Duration in minutes (empty: the configured one)",
+            "fr": "Durée en minutes (vide : celle de la configuration)"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "mower_name",
+          "type": "string",
+          "label": {
+            "en": "Mower(s)",
+            "fr": "Tondeuse(s)"
+          }
+        },
+        {
+          "key": "count",
+          "type": "number",
+          "label": {
+            "en": "Mowers commanded",
+            "fr": "Tondeuses commandées"
+          }
+        },
+        {
+          "key": "minutes",
+          "type": "number",
+          "label": {
+            "en": "Duration (min)",
+            "fr": "Durée (min)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "park",
+      "label": {
+        "en": "Automower: park",
+        "fr": "Automower : garer"
+      },
+      "description": {
+        "en": "Send the mower back to its station: until the next schedule, until further notice or for a duration.",
+        "fr": "Renvoyer la tondeuse à sa station : jusqu'au prochain créneau, jusqu'à nouvel ordre ou pendant une durée."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "mower",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Mower (empty: every mower)",
+            "fr": "Tondeuse (vide : toutes)"
+          }
+        },
+        {
+          "key": "mode",
+          "type": "select",
+          "required": true,
+          "default": "next_schedule",
+          "label": {
+            "en": "Park",
+            "fr": "Garer"
+          },
+          "options": [
+            {
+              "value": "next_schedule",
+              "label": {
+                "en": "Until the next schedule",
+                "fr": "Jusqu'au prochain créneau"
+              }
+            },
+            {
+              "value": "further_notice",
+              "label": {
+                "en": "Until further notice",
+                "fr": "Jusqu'à nouvel ordre"
+              }
+            },
+            {
+              "value": "duration",
+              "label": {
+                "en": "For a duration",
+                "fr": "Pendant une durée"
+              }
+            }
+          ]
+        },
+        {
+          "key": "duration",
+          "type": "number",
+          "required": false,
+          "min": 1,
+          "max": 65000,
+          "label": {
+            "en": "Duration in minutes (for \"For a duration\")",
+            "fr": "Durée en minutes (pour « Pendant une durée »)"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "mower_name",
+          "type": "string",
+          "label": {
+            "en": "Mower(s)",
+            "fr": "Tondeuse(s)"
+          }
+        },
+        {
+          "key": "count",
+          "type": "number",
+          "label": {
+            "en": "Mowers commanded",
+            "fr": "Tondeuses commandées"
+          }
+        },
+        {
+          "key": "mode",
+          "type": "string",
+          "label": {
+            "en": "Park mode",
+            "fr": "Mode de retour"
+          }
+        },
+        {
+          "key": "minutes",
+          "type": "number",
+          "label": {
+            "en": "Duration (min, empty if none)",
+            "fr": "Durée (min, vide si aucune)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "pause",
+      "label": {
+        "en": "Automower: pause",
+        "fr": "Automower : pause"
+      },
+      "description": {
+        "en": "Stop the mower where it is. It stays paused until started, parked or resumed.",
+        "fr": "Arrêter la tondeuse là où elle est. Elle reste en pause jusqu'à un démarrage, un retour ou une reprise."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "mower",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Mower (empty: every mower)",
+            "fr": "Tondeuse (vide : toutes)"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "mower_name",
+          "type": "string",
+          "label": {
+            "en": "Mower(s)",
+            "fr": "Tondeuse(s)"
+          }
+        },
+        {
+          "key": "count",
+          "type": "number",
+          "label": {
+            "en": "Mowers commanded",
+            "fr": "Tondeuses commandées"
+          }
+        }
+      ]
+    },
+    {
+      "key": "resume_schedule",
+      "label": {
+        "en": "Automower: resume the schedule",
+        "fr": "Automower : reprendre le planning"
+      },
+      "description": {
+        "en": "Remove any start, park or pause override: the mower follows its own schedule again.",
+        "fr": "Annuler tout démarrage, retour ou pause forcé : la tondeuse suit à nouveau son planning."
+      },
+      "timeout_seconds": 30,
+      "fields": [
+        {
+          "key": "mower",
+          "type": "select",
+          "source": "devices",
+          "required": false,
+          "label": {
+            "en": "Mower (empty: every mower)",
+            "fr": "Tondeuse (vide : toutes)"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "key": "mower_name",
+          "type": "string",
+          "label": {
+            "en": "Mower(s)",
+            "fr": "Tondeuse(s)"
+          }
+        },
+        {
+          "key": "count",
+          "type": "number",
+          "label": {
+            "en": "Mowers commanded",
+            "fr": "Tondeuses commandées"
+          }
+        }
+      ]
+    }
+  ]
+}

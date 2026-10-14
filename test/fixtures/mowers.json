@@ -1,0 +1,137 @@
+{
+  "data": [
+    {
+      "type": "mower",
+      "id": "c7233734-b219-4287-a173-08e3643f89f0",
+      "attributes": {
+        "system": { "name": "Pelouse", "model": "430X", "serialNumber": 192800001 },
+        "battery": { "batteryPercent": 100, "remainingChargingTime": 0 },
+        "capabilities": {
+          "canConfirmError": true,
+          "headlights": true,
+          "position": true,
+          "stayOutZones": false,
+          "workAreas": false
+        },
+        "mower": {
+          "mode": "MAIN_AREA",
+          "activity": "PARKED_IN_CS",
+          "inactiveReason": "NONE",
+          "state": "RESTRICTED",
+          "errorCode": 0,
+          "errorCodeTimestamp": 0,
+          "isErrorConfirmable": false
+        },
+        "calendar": {
+          "tasks": [
+            {
+              "start": 600,
+              "duration": 480,
+              "monday": true,
+              "tuesday": true,
+              "wednesday": true,
+              "thursday": true,
+              "friday": true,
+              "saturday": false,
+              "sunday": false
+            }
+          ]
+        },
+        "planner": {
+          "nextStartTimestamp": 1791972000000,
+          "override": { "action": "NOT_ACTIVE" },
+          "restrictedReason": "WEEK_SCHEDULE"
+        },
+        "metadata": { "connected": true, "statusTimestamp": 1791961080000 },
+        "positions": [
+          { "latitude": 57.7086409, "longitude": 14.1678988 },
+          { "latitude": 57.7086502, "longitude": 14.1679113 }
+        ],
+        "settings": { "cuttingHeight": 5, "headlight": { "mode": "EVENING_ONLY" } },
+        "statistics": {
+          "cuttingBladeUsageTime": 123000,
+          "downTime": 4000,
+          "numberOfChargingCycles": 421,
+          "numberOfCollisions": 11396,
+          "totalChargingTime": 81000,
+          "totalCuttingTime": 4334400,
+          "totalDriveDistance": 1780272,
+          "totalRunningTime": 4564800,
+          "totalSearchingTime": 370800,
+          "upTime": 1000000
+        },
+        "stayOutZones": { "dirty": false, "zones": [] },
+        "workAreas": []
+      }
+    },
+    {
+      "type": "mower",
+      "id": "5a1e91f4-6c2d-4b8e-9f3a-2d7c8b0e4a11",
+      "attributes": {
+        "system": { "name": "Jardin arrière", "model": "450X EPOS", "serialNumber": 230500002 },
+        "battery": { "batteryPercent": 64, "remainingChargingTime": 0 },
+        "capabilities": {
+          "canConfirmError": true,
+          "headlights": true,
+          "position": true,
+          "stayOutZones": false,
+          "workAreas": true
+        },
+        "mower": {
+          "mode": "MAIN_AREA",
+          "activity": "MOWING",
+          "inactiveReason": "NONE",
+          "state": "IN_OPERATION",
+          "workAreaId": 123456,
+          "errorCode": 0,
+          "errorCodeTimestamp": 0,
+          "isErrorConfirmable": false
+        },
+        "calendar": {
+          "tasks": [
+            {
+              "start": 420,
+              "duration": 780,
+              "monday": true,
+              "tuesday": true,
+              "wednesday": true,
+              "thursday": true,
+              "friday": true,
+              "saturday": true,
+              "sunday": true,
+              "workAreaId": 123456
+            }
+          ]
+        },
+        "planner": {
+          "nextStartTimestamp": 0,
+          "override": { "action": "NOT_ACTIVE" },
+          "restrictedReason": "NONE"
+        },
+        "metadata": { "connected": true, "statusTimestamp": 1791961080000 },
+        "positions": [],
+        "settings": { "cuttingHeight": 7, "headlight": { "mode": "ALWAYS_OFF" } },
+        "statistics": { "numberOfChargingCycles": 88, "totalCuttingTime": 950400 },
+        "stayOutZones": { "dirty": false, "zones": [] },
+        "workAreas": [
+          {
+            "workAreaId": 0,
+            "name": "",
+            "cuttingHeight": 50,
+            "enabled": true,
+            "progress": 40,
+            "lastTimeCompleted": 0
+          },
+          {
+            "workAreaId": 123456,
+            "name": "Back lawn",
+            "cuttingHeight": 60,
+            "enabled": true,
+            "progress": 20,
+            "lastTimeCompleted": 1791880000
+          }
+        ]
+      }
+    }
+  ]
+}

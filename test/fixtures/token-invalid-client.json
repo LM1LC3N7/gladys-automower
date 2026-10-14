@@ -1,0 +1,5 @@
+{
+  "error": "invalid_client",
+  "error_description": "Client not found",
+  "error_code": "client.not.found"
+}

@@ -1,0 +1,62 @@
+{
+  "connection": { "ready": true, "connectionId": "M0hLdeRPjoECHMQ=" },
+  "mower": {
+    "id": "c7233734-b219-4287-a173-08e3643f89f0",
+    "type": "mower-event-v2",
+    "attributes": {
+      "mower": {
+        "mode": "MAIN_AREA",
+        "activity": "LEAVING",
+        "inactiveReason": "NONE",
+        "state": "IN_OPERATION",
+        "errorCode": 0,
+        "isErrorConfirmable": false,
+        "errorCodeTimestamp": 0
+      }
+    }
+  },
+  "battery": {
+    "id": "c7233734-b219-4287-a173-08e3643f89f0",
+    "type": "battery-event-v2",
+    "attributes": { "battery": { "batteryPercent": 77 } }
+  },
+  "planner": {
+    "id": "c7233734-b219-4287-a173-08e3643f89f0",
+    "type": "planner-event-v2",
+    "attributes": {
+      "planner": {
+        "nextStartTimestamp": 1792054800,
+        "override": { "action": "NOT_ACTIVE" },
+        "restrictedReason": "WEEK_SCHEDULE"
+      }
+    }
+  },
+  "message": {
+    "id": "c7233734-b219-4287-a173-08e3643f89f0",
+    "type": "message-event-v2",
+    "attributes": {
+      "message": {
+        "time": 1728034996,
+        "code": 4,
+        "severity": "WARNING",
+        "latitude": 57.7086409,
+        "longitude": 14.1678988
+      }
+    }
+  },
+  "position": {
+    "id": "c7233734-b219-4287-a173-08e3643f89f0",
+    "type": "position-event-v2",
+    "attributes": { "position": { "latitude": 57.7086409, "longitude": 14.1678988 } }
+  },
+  "cuttingHeight": {
+    "id": "c7233734-b219-4287-a173-08e3643f89f0",
+    "type": "cuttingHeight-event-v2",
+    "attributes": { "cuttingHeight": { "height": 6 } }
+  },
+  "headlights": {
+    "id": "c7233734-b219-4287-a173-08e3643f89f0",
+    "type": "headlights-event-v2",
+    "attributes": { "headlight": { "mode": "ALWAYS_ON" } }
+  }
+}
