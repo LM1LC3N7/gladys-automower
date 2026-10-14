@@ -75,7 +75,10 @@ says it leaves once **fully charged**.
 
 The actions **start mowing**, **park**, **pause** and **resume the
 schedule** act on the chosen mower, or on every mower when the field is
-empty. They give `{{mower_name}}` and `{{count}}` to the following actions.
+empty. They give `mower_name` and `count` to the following actions of the
+scene, which find them in their variable list (written
+`{{<step>.<action>.<key>}}`, for instance `{{0.0.count}}` when this action
+is the first of the scene).
 
 ## How often Husqvarna is called
 

@@ -80,8 +80,10 @@ de suite : selon Husqvarna, elle part une fois **complètement chargée**.
 
 Les actions **démarrer la tonte**, **garer**, **pause** et **reprendre le
 planning** agissent sur la tondeuse choisie, ou sur toutes quand le champ
-est vide. Elles donnent `{{mower_name}}` et `{{count}}` aux actions
-suivantes.
+est vide. Elles donnent `mower_name` et `count` aux actions suivantes de
+la scène, qui les trouvent dans leur liste de variables (écrites
+`{{<étape>.<action>.<clé>}}`, par exemple `{{0.0.count}}` quand cette
+action est la première de la scène).
 
 ## À quel rythme Husqvarna est appelé
 
