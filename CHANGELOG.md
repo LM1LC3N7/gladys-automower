@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-24
+
 ### Fixed
 
 - Automower Connect calls send `Accept: application/vnd.api+json`: Husqvarna answered
@@ -41,5 +43,6 @@ the notes of the version's GitHub Release.
   mode, error, connection, and Start / Park / Pause / Resume buttons.
 - A "Test Husqvarna" button.
 
-[Unreleased]: https://github.com/LM1LC3N7/gladys-automower/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/LM1LC3N7/gladys-automower/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/LM1LC3N7/gladys-automower/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/LM1LC3N7/gladys-automower/releases/tag/v0.1.1
