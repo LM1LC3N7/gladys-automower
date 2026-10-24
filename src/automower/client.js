@@ -10,7 +10,7 @@
 //        ParkUntilFurtherNotice, Pause, ResumeSchedule
 //
 // Headers: Authorization: Bearer <token>, X-Api-Key: <application key>,
-// Authorization-Provider: husqvarna, Content-Type: application/vnd.api+json.
+// Authorization-Provider: husqvarna, Accept and Content-Type: application/vnd.api+json.
 // Two calls are at least REQUEST_SPACING apart (published limit: 120 per
 // minute and 21,000 per week and application key).
 // -----------------------------------------------------------------------------
@@ -113,6 +113,8 @@ export class AutomowerClient {
         body,
         contentType: 'application/vnd.api+json',
         headers: {
+          // JSON:API both ways: the API answers 400 "Not Acceptable" to Accept: application/json.
+          Accept: 'application/vnd.api+json',
           Authorization: `Bearer ${token}`,
           'X-Api-Key': this.tokens.appKey,
           'Authorization-Provider': 'husqvarna',

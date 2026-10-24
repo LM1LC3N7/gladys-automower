@@ -12,6 +12,8 @@ the notes of the version's GitHub Release.
 
 ### Fixed
 
+- Automower Connect calls send `Accept: application/vnd.api+json`: Husqvarna answered
+  `Accept: application/json` with 400 "Not Acceptable", so no mower was ever read (issue #1).
 - Docs: the outputs of the scene actions come from the variable list
   (`{{<step>.<action>.<key>}}`), not `{{<key>}}`.
 

@@ -95,6 +95,8 @@ test('REST: the three headers, JSON:API, and the action bodies', async () => {
   assert.equal(read.headers.Authorization, `Bearer ${fixture('token.json').access_token}`);
   assert.equal(read.headers['X-Api-Key'], KEY);
   assert.equal(read.headers['Authorization-Provider'], 'husqvarna');
+  // Issue #1: Accept: application/json is answered 400 "Not Acceptable".
+  assert.equal(read.headers.Accept, 'application/vnd.api+json');
   assert.match(read.headers['User-Agent'], /^gladys-automower\//);
   await client.start(PELOUSE, 180);
   await client.parkFor(PELOUSE, 60);
@@ -105,6 +107,7 @@ test('REST: the three headers, JSON:API, and the action bodies', async () => {
   const actions = fake.calls.filter((c) => c.path.endsWith('/actions'));
   assert.equal(actions[0].path, `api/mowers/${PELOUSE}/actions`);
   assert.equal(actions[0].headers['Content-Type'], 'application/vnd.api+json');
+  assert.equal(actions[0].headers.Accept, 'application/vnd.api+json');
   assert.deepEqual(
     actions.map((c) => c.body),
     [
