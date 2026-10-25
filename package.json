@@ -1,6 +1,6 @@
 {
   "name": "gladys-automower",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "Husqvarna Automower robotic mowers for Gladys Assistant through the official Automower Connect API: status, battery, start, park, pause, error scene triggers and a dashboard widget. Unofficial, not affiliated with Husqvarna.",
   "type": "module",
