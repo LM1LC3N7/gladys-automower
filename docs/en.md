@@ -31,8 +31,8 @@ Automower is a trademark of Husqvarna AB.
 5. Open **Discovery** and add your mowers.
 6. Put the **Robotic mower** widget on a dashboard.
 
-The key and the secret are stored encrypted by Gladys and only sent to
-Husqvarna. If Husqvarna refuses them, the integration stops trying until you
+The key and the secret are kept by Gladys in its database, never shown
+again, and only sent to Husqvarna. If Husqvarna refuses them, the integration stops trying until you
 save the configuration again: repeated failed logins lock the Husqvarna
 account for 30 minutes.
 
@@ -95,6 +95,13 @@ typical week uses about 2 % of the allowance.
   from the portal (My applications), then save the configuration.
 - **"The application is not connected to the Automower Connect API"**:
   connect it on the portal (step 3), then save the configuration again.
+- **"Connected to Husqvarna, but the account has no mower"**: the key and
+  the secret give access to the mowers of the Husqvarna account that
+  **created the application** on the portal (client credentials token). Sign
+  in to the portal with the Automower Connect account where the mower is
+  paired (same e-mail), or create the application there. A mower without
+  Automower Connect (Bluetooth only) is never listed. The logs say how many
+  items Husqvarna listed and why one was dropped.
 - **No live events** while REST works: Husqvarna advises renewing the
   application secret on the portal.
 - **The next start is one hour off**: the mower sends its own local time;

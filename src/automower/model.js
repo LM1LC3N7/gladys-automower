@@ -112,17 +112,53 @@ export function wallClockText(wall) {
 
 // --- Mowers -------------------------------------------------------------------------
 
-/** A JSON:API item that is a real mower (aioautomower skips the "0-0" one). */
+/**
+ * Why a JSON:API item of GET /mowers is not a mower, in a few words safe for
+ * a log line (the item's type only: never its id, name or serial number), or
+ * null for a real mower (aioautomower skips the "0-0" one too).
+ */
+export function mowerItemRejection(item) {
+  if (!item || typeof item !== 'object') {
+    return `not an object (${item === null ? 'null' : typeof item})`;
+  }
+  if (!item.id) {
+    return 'no id';
+  }
+  if (String(item.id) === INVALID_MOWER_ID) {
+    return `id "${INVALID_MOWER_ID}" (placeholder)`;
+  }
+  if (item.type !== undefined && item.type !== 'mower') {
+    return `type "${String(item.type).slice(0, 40)}"`;
+  }
+  if (!item.attributes || typeof item.attributes !== 'object') {
+    return 'no attributes';
+  }
+  return null;
+}
+
+/** A JSON:API item that is a real mower. */
 export function isMowerItem(item) {
-  return Boolean(
-    item &&
-    typeof item === 'object' &&
-    item.id &&
-    String(item.id) !== INVALID_MOWER_ID &&
-    (item.type === undefined || item.type === 'mower') &&
-    item.attributes &&
-    typeof item.attributes === 'object',
-  );
+  return mowerItemRejection(item) === null;
+}
+
+/**
+ * The shape of a GET /mowers document for a log line, without its contents:
+ * the top-level keys, the type of `data` and its size.
+ */
+export function documentShape(document) {
+  if (!document || typeof document !== 'object') {
+    return `${document === null ? 'null' : typeof document} instead of a JSON:API document`;
+  }
+  const keys = Object.keys(document).slice(0, 10).join(', ') || 'none';
+  const { data } = document;
+  const kind = Array.isArray(data)
+    ? `array of ${data.length}`
+    : data === null
+      ? 'null'
+      : data === undefined
+        ? 'absent'
+        : typeof data;
+  return `keys [${keys}], data ${kind}, ${JSON.stringify(document).length} bytes`;
 }
 
 /** The attributes the integration keeps: everything but the GPS positions. */

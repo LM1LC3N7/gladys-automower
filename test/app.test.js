@@ -376,7 +376,9 @@ test('outages: Husqvarna down, then the API limit; the loop retries at its pace'
         () =>
           outage.status
             ? json(
-                { message: outage.status === 429 ? 'Too Many Requests' : 'Down' },
+                outage.status === 400
+                  ? { errors: [{ detail: 'Not Acceptable' }] }
+                  : { message: outage.status === 429 ? 'Too Many Requests' : 'Down' },
                 outage.status,
                 outage.retry ? { 'retry-after': outage.retry } : {},
               )
@@ -384,11 +386,26 @@ test('outages: Husqvarna down, then the API limit; the loop retries at its pace'
       ],
     ],
   });
-  const { gladys } = ctx;
+  const { gladys, app } = ctx;
   assert.equal(gladys.fake.connectionStatus.connected, false);
   assert.match(gladys.fake.connectionStatus.message.en, /Husqvarna is unreachable: HTTP 503/);
+  // Issue #1: a 400 on the read is not an outage nor a refused command, and nothing stops.
+  outage.status = 400;
+  await advance(ctx, 10);
+  assert.equal(gladys.fake.connectionStatus.connected, false);
+  assert.match(
+    gladys.fake.connectionStatus.message.en,
+    /^Husqvarna refused the request: Not Acceptable\. Retrying every 10 minutes/,
+  );
+  assert.match(
+    gladys.fake.connectionStatus.message.fr,
+    /^Husqvarna refused the request.*toutes les 10 minutes/,
+  );
+  assert.equal(app.fatal, undefined, 'not final');
+  const refused = count(/GET api\/mowers$/);
   outage.status = 0;
   await advance(ctx, 10);
+  assert.equal(count(/GET api\/mowers$/), refused + 1, 'read again 10 minutes later');
   assert.equal(gladys.fake.connectionStatus.connected, true);
   assert.equal(gladys.fake.discoveredDevices.length, 2);
   outage.status = 429;
@@ -396,7 +413,7 @@ test('outages: Husqvarna down, then the API limit; the loop retries at its pace'
   await advance(ctx, 30);
   assert.match(
     gladys.fake.connectionStatus.message.en,
-    /limit reached: reading paused until 08:40 UTC/,
+    /limit reached: reading paused until 08:50 UTC/,
   );
   const paused = count(/GET api\/mowers$/);
   outage.status = 0;
@@ -405,6 +422,55 @@ test('outages: Husqvarna down, then the API limit; the loop retries at its pace'
   await advance(ctx, 2);
   assert.equal(count(/GET api\/mowers$/), paused + 1);
   assert.equal(gladys.fake.connectionStatus.connected, true);
+});
+
+test('no mower kept: the log says how many were listed and why each one is dropped', async () => {
+  const document = fixture('mowers.json');
+  const ctx = await setup({ create: false, routes: [['GET', /^api\/mowers$/, () => document]] });
+  const { gladys, logs } = ctx;
+  const listing = () => logs.filter((l) => /mower\(s\) listed/.test(l));
+  assert.deepEqual(listing(), ['Husqvarna: 2 mower(s) listed, 2 kept']);
+  // Issue #3: an empty list says the shape of the answer, not its contents.
+  document.data = [];
+  await advance(ctx, 30);
+  assert.equal(
+    listing().at(-1),
+    'Husqvarna: 0 mower(s) listed, 0 kept (answer: keys [data], data array of 0, 11 bytes)',
+  );
+  assert.equal(gladys.fake.connectionStatus.connected, true);
+  assert.match(gladys.fake.connectionStatus.message.en, /account has no mower.*same e-mail/);
+  assert.match(gladys.fake.connectionStatus.message.fr, /même e-mail/);
+  assert.equal(listing().length, 2, 'once per read, not per tick');
+  // Items of another type, one without attributes, the "0-0" placeholder.
+  const [pelouse, jardin] = fixture('mowers.json').data;
+  document.data = [
+    { ...pelouse, type: 'workArea' },
+    { ...jardin, attributes: undefined },
+    { ...pelouse, id: '0-0' },
+  ];
+  await advance(ctx, 30);
+  assert.equal(
+    listing().at(-1),
+    'Husqvarna: 3 mower(s) listed, 0 kept (dropped: type "workArea"; no attributes; id "0-0" (placeholder))',
+  );
+  // Not a JSON:API document at all.
+  delete document.data;
+  document.message = 'ok';
+  await advance(ctx, 30);
+  assert.equal(
+    listing().at(-1),
+    'Husqvarna: 0 mower(s) listed, 0 kept (answer: keys [message], data absent, 16 bytes)',
+  );
+  // One kept, one dropped: the status counts the kept one.
+  delete document.message;
+  document.data = [pelouse, { ...jardin, type: 'workArea' }];
+  await advance(ctx, 30);
+  assert.equal(listing().at(-1), 'Husqvarna: 2 mower(s) listed, 1 kept (dropped: type "workArea")');
+  assert.match(gladys.fake.connectionStatus.message.en, /1 mower,/);
+  const everything = JSON.stringify([logs, gladys.fake.connectionStatuses]);
+  for (const leak of [KEY, SECRET, TOKEN, PELOUSE, JARDIN, 'Pelouse', 'Jardin', '192800001']) {
+    assert.ok(!everything.includes(leak), `leaked: ${leak}`);
+  }
 });
 
 test('a mower paired since: its first event reads the account, discovery offers it', async () => {

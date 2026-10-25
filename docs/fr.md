@@ -31,8 +31,8 @@ Husqvarna. Automower est une marque de Husqvarna AB.
 5. Ouvrez **Découverte** et ajoutez vos tondeuses.
 6. Placez le widget **Tondeuse robot** sur un tableau de bord.
 
-La clé et le secret sont stockés chiffrés par Gladys et envoyés uniquement à
-Husqvarna. Si Husqvarna les refuse, l'intégration cesse d'essayer jusqu'à ce
+La clé et le secret sont gardés par Gladys dans sa base, jamais réaffichés,
+envoyés seulement à Husqvarna. Si Husqvarna les refuse, l'intégration cesse d'essayer jusqu'à ce
 que vous enregistriez à nouveau la configuration : des connexions échouées
 répétées bloquent le compte Husqvarna pendant 30 minutes.
 
@@ -102,6 +102,13 @@ fois, 30 secondes après. Une semaine type utilise environ 2 % du quota.
 - **« L'application n'est pas connectée à l'API Automower Connect »** :
   connectez-la sur le portail (étape 3), puis enregistrez à nouveau la
   configuration.
+- **« Connecté à Husqvarna, mais le compte n'a aucune tondeuse »** : la
+  clé et le secret donnent accès aux tondeuses du compte Husqvarna qui a
+  **créé l'application** sur le portail (jeton client credentials).
+  Connectez-vous au portail avec le compte Automower Connect où la tondeuse
+  est associée (même e-mail), ou créez-y l'application. Une tondeuse sans
+  Automower Connect (Bluetooth seul) n'est jamais listée. Les journaux
+  disent combien d'éléments Husqvarna a listés et pourquoi l'un est écarté.
 - **Pas d'événements en direct** alors que le reste fonctionne : Husqvarna
   conseille de renouveler le secret de l'application sur le portail.
 - **Le prochain départ est décalé d'une heure** : la tondeuse envoie son

@@ -129,7 +129,8 @@ export class TokenManager {
         method: 'POST',
         form: true,
         body: { token },
-        headers: { Authorization: `Bearer ${token}` },
+        // No reference client asks for JSON here (the README sends no Accept at all).
+        headers: { Accept: '*/*', Authorization: `Bearer ${token}` },
         timeout: 5_000,
       });
       return true;

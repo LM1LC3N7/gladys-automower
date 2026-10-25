@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import {
   ACTIONS,
   ACTIVITIES,
@@ -39,6 +39,32 @@ function* texts(node, path = '') {
     }
   }
 }
+
+// Built from parts, so that this file passes its own check: a secret field is
+// never said to be protected in a way Gladys does not provide.
+const ENCRYPTED = new RegExp(['chiff', 'r(é|e?ment)', '|encry', 'pt'].join(''), 'i');
+
+test('no text claims the key or the secret is stored in a protected form', () => {
+  assert.ok(ENCRYPTED.test('stocké chiffré') && ENCRYPTED.test('Encrypted'));
+  assert.ok(!ENCRYPTED.test('les chiffres du jour'));
+  const files = [
+    'gladys-assistant-integration.json',
+    'README.md',
+    'CHANGELOG.md',
+    'TODO.md',
+    'docs/en.md',
+    'docs/fr.md',
+    'index.js',
+    ...readdirSync(new URL('../src/', import.meta.url), { recursive: true })
+      .map(String)
+      .filter((name) => name.endsWith('.js'))
+      .map((name) => `src/${name}`),
+  ];
+  for (const file of files) {
+    const hit = read(file).match(ENCRYPTED);
+    assert.equal(hit, null, `${file} says "${hit?.[0]}"`);
+  }
+});
 
 test('the store basics', () => {
   assert.equal(manifest.manifest_version, 1);

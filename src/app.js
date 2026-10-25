@@ -40,10 +40,12 @@ import { EventStream } from './automower/events.js';
 import {
   EVENT_TYPES,
   applyEvent,
+  documentShape,
   fold,
   isMowerItem,
   keptAttributes,
   messageOf,
+  mowerItemRejection,
   mowerOf,
 } from './automower/model.js';
 import { mowerEvents, nextReading } from './triggers.js';
@@ -231,6 +233,9 @@ export class AutomowerApp {
       await this.setStatus(false, T.rateLimited(new Date(this.pausedUntil).toISOString()));
     } else if (code === 'forbidden') {
       await this.setStatus(false, T.forbidden(err.message));
+    } else if (code === 'bad_request') {
+      // Husqvarna answered, but refused the request itself: not an outage.
+      await this.setStatus(false, T.badRequest(err.message));
     } else {
       await this.setStatus(false, T.unreachable(err.message));
     }
@@ -242,7 +247,10 @@ export class AutomowerApp {
   readAll() {
     return this.exclusive(async () => {
       this.lastReadAt = this.now();
-      const items = (await this.client.mowers()).filter(isMowerItem);
+      const document = await this.client.mowersDocument();
+      const listed = Array.isArray(document?.data) ? document.data : [];
+      const items = listed.filter(isMowerItem);
+      this.logListing(document, listed, items);
       this.healthy = true;
       const before = [...this.raw.keys()].sort().join('|');
       const seen = new Set();
@@ -263,6 +271,27 @@ export class AutomowerApp {
         await this.publishDevices();
       }
     });
+  }
+
+  /**
+   * One line per read: how many items Husqvarna listed and how many are
+   * mowers; why each other one is dropped, and the shape of an empty answer
+   * (issue #3: "connected, no mower" said nothing). No id, name, serial
+   * number or position: the shape only.
+   */
+  logListing(document, listed, items) {
+    let line = `Husqvarna: ${listed.length} mower(s) listed, ${items.length} kept`;
+    if (listed.length === 0) {
+      line += ` (answer: ${documentShape(document)})`;
+    } else if (items.length < listed.length) {
+      const reasons = listed.map(mowerItemRejection).filter(Boolean);
+      line += ` (dropped: ${reasons.join('; ')})`;
+    }
+    if (items.length === listed.length && listed.length > 0) {
+      this.logger.info(line);
+    } else {
+      this.logger.warn(line);
+    }
   }
 
   /** GET /mowers/{id}: one mower, after a command. */

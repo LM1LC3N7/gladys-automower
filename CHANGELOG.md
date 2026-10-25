@@ -10,6 +10,26 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Added
+
+- Every read logs "Husqvarna: N mower(s) listed, M kept", with the reason each
+  other item is dropped (its type, no id, no attributes) or, for an empty list,
+  the shape of the answer (keys, type and size of `data`): no id, name, serial
+  number or position in the line (issue #3).
+
+### Fixed
+
+- The "no mower" status explains the client credentials rule: the key and the
+  secret reach the mowers of the Husqvarna account that created the application
+  on the Developer Portal, which must be the Automower Connect account where the
+  mower is paired (issue #3); the docs' troubleshooting says the same.
+- A 400 on a read is reported as "Husqvarna refused the request" with a 10-minute
+  retry, no longer as "refused the command" or "Husqvarna is unreachable".
+- The token revocation asks for `Accept: */*`, as the reference clients do.
+- The key and secret fields, the docs: "kept by Gladys in its database, never
+  shown again, only sent to Husqvarna" instead of a protection Gladys does not
+  give (a test keeps the word out of every text).
+
 ## [0.1.2] - 2026-10-24
 
 ### Fixed

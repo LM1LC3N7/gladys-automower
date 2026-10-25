@@ -76,8 +76,8 @@
         "fr": "Clé d'application"
       },
       "description": {
-        "en": "Stored encrypted by Gladys and only sent to Husqvarna.",
-        "fr": "Stockée chiffrée par Gladys et envoyée uniquement à Husqvarna."
+        "en": "Kept by Gladys in its database, never shown again, only sent to Husqvarna.",
+        "fr": "Gardée par Gladys dans sa base, jamais réaffichée, envoyée seulement à Husqvarna."
       }
     },
     {
@@ -89,8 +89,8 @@
         "fr": "Secret d'application"
       },
       "description": {
-        "en": "Stored encrypted by Gladys and only sent to the Husqvarna authentication service.",
-        "fr": "Stocké chiffré par Gladys et envoyé uniquement au service d'authentification Husqvarna."
+        "en": "Kept by Gladys in its database, never shown again, only sent to the Husqvarna authentication service.",
+        "fr": "Gardé par Gladys dans sa base, jamais réaffiché, envoyé seulement au service d'authentification Husqvarna."
       }
     },
     {

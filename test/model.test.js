@@ -7,8 +7,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
   applyEvent,
+  documentShape,
   isMowerItem,
   keptAttributes,
+  mowerItemRejection,
   mowerOf,
   parseMessage,
   wallClockMs,
@@ -74,6 +76,26 @@ test('the invalid "0-0" mower and other JSON:API items are left out', () => {
   assert.equal(isMowerItem({ ...one, id: '0-0' }), false);
   assert.equal(isMowerItem({ ...one, type: 'workArea' }), false);
   assert.equal(isMowerItem({ id: 'x' }), false);
+  // The reasons name the shape only: no id, name or serial number.
+  assert.equal(mowerItemRejection(one), null);
+  assert.equal(mowerItemRejection({ ...one, id: '0-0' }), 'id "0-0" (placeholder)');
+  assert.equal(mowerItemRejection({ ...one, type: 'workArea' }), 'type "workArea"');
+  assert.equal(mowerItemRejection({ id: 'x' }), 'no attributes');
+  assert.equal(mowerItemRejection({ attributes: {} }), 'no id');
+  assert.equal(mowerItemRejection(null), 'not an object (null)');
+  assert.equal(mowerItemRejection('mower'), 'not an object (string)');
+});
+
+test('the shape of a GET /mowers answer, for the log, without its contents', () => {
+  assert.equal(documentShape({ data: [] }), 'keys [data], data array of 0, 11 bytes');
+  assert.equal(
+    documentShape({ data: { id: 'secret' }, meta: {} }),
+    'keys [data, meta], data object, 34 bytes',
+  );
+  assert.equal(documentShape({ errors: [] }), 'keys [errors], data absent, 13 bytes');
+  assert.equal(documentShape({ data: null }), 'keys [data], data null, 13 bytes');
+  assert.equal(documentShape(undefined), 'undefined instead of a JSON:API document');
+  assert.equal(documentShape('[]'), 'string instead of a JSON:API document');
 });
 
 test('websocket messages: the pong, the ready message, v2 events', () => {

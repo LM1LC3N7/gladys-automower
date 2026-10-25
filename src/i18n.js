@@ -93,9 +93,13 @@ export const T = {
     en: `Husqvarna is unreachable: ${message}. Retrying in a few minutes.`,
     fr: `Husqvarna est injoignable : ${message}. Nouvel essai dans quelques minutes.`,
   }),
+  badRequest: (message) => ({
+    en: `${message}. Retrying every 10 minutes; if it goes on, report it on the integration's repository with the Gladys logs.`,
+    fr: `${message}. Nouvel essai toutes les 10 minutes ; si cela persiste, signalez-le sur le dépôt de l'intégration avec les journaux Gladys.`,
+  }),
   noMower: {
-    en: 'Connected to Husqvarna, but the account has no mower: pair it in the Automower Connect app first.',
-    fr: "Connecté à Husqvarna, mais le compte n'a aucune tondeuse : associez-la d'abord dans l'application Automower Connect.",
+    en: 'Connected to Husqvarna, but the account has no mower. The key and secret give access to the mowers of the Husqvarna account that created the application on the Developer Portal: it must be the Automower Connect account where the mower is paired (same e-mail), and the mower must be connected (Automower Connect, not Bluetooth only). Details in the Gladys logs.',
+    fr: "Connecté à Husqvarna, mais le compte n'a aucune tondeuse. La clé et le secret donnent accès aux tondeuses du compte Husqvarna qui a créé l'application sur le portail développeur : ce doit être le compte Automower Connect où la tondeuse est associée (même e-mail), et la tondeuse doit être connectée (Automower Connect, pas seulement Bluetooth). Détails dans les journaux Gladys.",
   },
   ok: ({ mowers, live, resyncMinutes }) => {
     const en = {

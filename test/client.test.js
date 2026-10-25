@@ -174,6 +174,28 @@ test('a 401 renews the token once; the real gateway errors become codes', async 
     (err) => err.code === 'forbidden' && /Forbidden/.test(err.message),
   );
   fake.restore();
+  // Issue #1: a 400 on a read is "the request", on an action "the command".
+  await assert.rejects(
+    failing(400, {
+      errors: [{ detail: 'Not Acceptable. Likley an invalid Accept header' }],
+    }).mowers(),
+    (err) =>
+      err.code === 'bad_request' &&
+      err.message ===
+        'Husqvarna refused the request: Not Acceptable. Likley an invalid Accept header',
+  );
+  fake.restore();
+  await assert.rejects(
+    setup({
+      routes: [
+        ['POST', /\/actions$/, () => json({ errors: [{ detail: 'Mower is not connected' }] }, 400)],
+      ],
+    }).client.pause(PELOUSE),
+    (err) =>
+      err.code === 'bad_request' &&
+      err.message === 'Husqvarna refused the command: Mower is not connected',
+  );
+  fake.restore();
   await assert.rejects(
     failing(503, { errors: [{ title: 'Service Unavailable' }] }).mowers(),
     (err) => err.code === 'http' && /503 on \/v1\/mowers: Service Unavailable/.test(err.message),
@@ -188,5 +210,6 @@ test('the token is revoked at Husqvarna, with itself as the bearer', async () =>
   assert.equal(revoke.path, 'auth/oauth2/revoke');
   assert.deepEqual(revoke.body, { token });
   assert.equal(revoke.headers.Authorization, `Bearer ${token}`);
+  assert.equal(revoke.headers.Accept, '*/*', 'no JSON asked for: no reference client does');
   assert.equal(await tokens.revoke(), false, 'nothing left to revoke');
 });

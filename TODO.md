@@ -50,6 +50,27 @@
       `PARKED_IN_CS` until it is full (the run mode select then shows Idle
       again after the read back).
 
+## To check (issue #3: connected, no mower)
+
+- [ ] `GET /mowers` answers 200 with an empty `data` when the Developer
+      Portal account is not the Automower Connect account where the mower
+      is paired: the client credentials token is "for your own user (the
+      user who created the Developer Portal application)" (Authentication
+      API README) and `/mowers` lists "mowers linked to the user associated
+      with the access token" (OpenAPI). Home Assistant (`husqvarna_automower`
+      config flow) aborts with "No mowers connected to this account" on the
+      same empty answer. Confirm with the reporter which e-mail created the
+      application.
+- [ ] An application not connected to the "Automower Connect API" product:
+      the token comes without `amc:api` (handled before any REST call); if
+      a token without it reaches the gateway, the OpenAPI only says 403
+      "Forbidden" (handled as `forbidden`), the code is not documented.
+- [ ] A mower without Automower Connect (Bluetooth only, older models) is
+      never listed: the README requires "at least one connected
+      Automower". No region or marketplace condition is documented.
+- [ ] The log line "Husqvarna: N mower(s) listed, M kept" from a real
+      account (issue #3): the shape of the empty answer.
+
 ## Ideas
 
 - Work areas (EPOS, Ceora, NERA): `StartInWorkArea` as a scene action field,

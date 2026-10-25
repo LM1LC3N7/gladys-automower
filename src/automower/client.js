@@ -153,9 +153,11 @@ export class AutomowerClient {
         throw new AutomowerError('not_found', 'Unknown mower at Husqvarna', 404);
       }
       if (err.status === 400) {
+        // A 400 on a read is a header or gateway matter (issue #1), not a refused command.
+        const what = method === 'GET' ? 'the request' : 'the command';
         throw new AutomowerError(
           'bad_request',
-          `Husqvarna refused the command${detail ? `: ${detail}` : ''}`,
+          `Husqvarna refused ${what}${detail ? `: ${detail}` : ''}`,
           400,
         );
       }
@@ -169,9 +171,14 @@ export class AutomowerClient {
 
   // --- Reading -----------------------------------------------------------------------------
 
+  /** GET /mowers as Husqvarna sent it (app.js logs its shape when no mower comes out). */
+  mowersDocument() {
+    return this.call('mowers');
+  }
+
   /** Every mower of the account: the `data` array of GET /mowers. */
   async mowers() {
-    const document = await this.call('mowers');
+    const document = await this.mowersDocument();
     return Array.isArray(document?.data) ? document.data : [];
   }
 
