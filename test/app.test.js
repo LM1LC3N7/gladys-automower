@@ -377,7 +377,7 @@ test('outages: Husqvarna down, then the API limit; the loop retries at its pace'
           outage.status
             ? json(
                 outage.status === 400
-                  ? { errors: [{ detail: 'Not Acceptable' }] }
+                  ? { errors: outage.detail ? [{ detail: outage.detail }] : [] }
                   : { message: outage.status === 429 ? 'Too Many Requests' : 'Down' },
                 outage.status,
                 outage.retry ? { 'retry-after': outage.retry } : {},
@@ -391,17 +391,29 @@ test('outages: Husqvarna down, then the API limit; the loop retries at its pace'
   assert.match(gladys.fake.connectionStatus.message.en, /Husqvarna is unreachable: HTTP 503/);
   // Issue #1: a 400 on the read is not an outage nor a refused command, and nothing stops.
   outage.status = 400;
+  outage.detail = 'Not Acceptable';
   await advance(ctx, 10);
   assert.equal(gladys.fake.connectionStatus.connected, false);
   assert.match(
     gladys.fake.connectionStatus.message.en,
-    /^Husqvarna refused the request \(Husqvarna refused the request: Not Acceptable\)\. Retrying every 10 minutes/,
+    /^Husqvarna refused the request \(Not Acceptable\)\. Retrying every 10 minutes/,
   );
   assert.match(
     gladys.fake.connectionStatus.message.fr,
-    /^Husqvarna a refusé la requête \(Husqvarna refused the request: Not Acceptable\)\. Nouvel essai toutes les 10 minutes/,
+    /^Husqvarna a refusé la requête \(Not Acceptable\)\. Nouvel essai toutes les 10 minutes/,
   );
   assert.equal(app.fatal, undefined, 'not final');
+  // A 400 without errors[].detail: the same text, no empty brackets.
+  outage.detail = undefined;
+  await advance(ctx, 10);
+  assert.match(
+    gladys.fake.connectionStatus.message.en,
+    /^Husqvarna refused the request\. Retrying every 10 minutes/,
+  );
+  assert.match(
+    gladys.fake.connectionStatus.message.fr,
+    /^Husqvarna a refusé la requête\. Nouvel essai toutes les 10 minutes/,
+  );
   const refused = count(/GET api\/mowers$/);
   outage.status = 0;
   await advance(ctx, 10);
@@ -413,7 +425,7 @@ test('outages: Husqvarna down, then the API limit; the loop retries at its pace'
   await advance(ctx, 30);
   assert.match(
     gladys.fake.connectionStatus.message.en,
-    /limit reached: reading paused until 08:50 UTC/,
+    /limit reached: reading paused until 09:00 UTC/,
   );
   const paused = count(/GET api\/mowers$/);
   outage.status = 0;

@@ -24,12 +24,14 @@ export class AutomowerError extends Error {
    * changes) | unauthorized | forbidden | rate_limited | not_found |
    * bad_request | http | timeout | network.
    */
-  constructor(code, message, status, retryAfterMs) {
+  constructor(code, message, status, retryAfterMs, detail) {
     super(message);
     this.name = 'AutomowerError';
     this.code = code;
     this.status = status;
     this.retryAfterMs = retryAfterMs;
+    /** Husqvarna's own reason (`errors[].detail`), for a status text; may be undefined. */
+    this.detail = detail;
   }
 
   get final() {
@@ -147,6 +149,8 @@ export class AutomowerClient {
           'forbidden',
           `Husqvarna refused the request${detail ? ` (${detail})` : ''}`,
           403,
+          undefined,
+          detail,
         );
       }
       if (err.status === 404) {
@@ -159,6 +163,8 @@ export class AutomowerClient {
           'bad_request',
           `Husqvarna refused ${what}${detail ? `: ${detail}` : ''}`,
           400,
+          undefined,
+          detail,
         );
       }
       throw new AutomowerError(

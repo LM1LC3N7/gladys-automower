@@ -232,10 +232,10 @@ export class AutomowerApp {
       this.pausedUntil = this.now() + (err.retryAfterMs ?? RATE_LIMIT_PAUSE);
       await this.setStatus(false, T.rateLimited(new Date(this.pausedUntil).toISOString()));
     } else if (code === 'forbidden') {
-      await this.setStatus(false, T.forbidden(err.message));
+      await this.setStatus(false, T.forbidden(err.detail));
     } else if (code === 'bad_request') {
       // Husqvarna answered, but refused the request itself: not an outage.
-      await this.setStatus(false, T.badRequest(err.message));
+      await this.setStatus(false, T.badRequest(err.detail));
     } else {
       await this.setStatus(false, T.unreachable(err.message));
     }
@@ -662,7 +662,7 @@ export class AutomowerApp {
         return T.scope;
       }
       if (code === 'forbidden') {
-        return T.forbidden(err.message);
+        return T.forbidden(err.detail);
       }
       return T.unreachable(err.message);
     }

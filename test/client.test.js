@@ -182,7 +182,8 @@ test('a 401 renews the token once; the real gateway errors become codes', async 
     (err) =>
       err.code === 'bad_request' &&
       err.message ===
-        'Husqvarna refused the request: Not Acceptable. Likley an invalid Accept header',
+        'Husqvarna refused the request: Not Acceptable. Likley an invalid Accept header' &&
+      err.detail === 'Not Acceptable. Likley an invalid Accept header',
   );
   fake.restore();
   await assert.rejects(

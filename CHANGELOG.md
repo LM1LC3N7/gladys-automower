@@ -12,9 +12,10 @@ the notes of the version's GitHub Release.
 
 ### Changed
 
-- The status of a refused read (HTTP 400) has its own French and English text,
-  with Husqvarna's reason in brackets, instead of the English message of the
-  client in both languages.
+- The status of a refused read (HTTP 400) and of a refused access (HTTP 403)
+  has its own French and English text, with Husqvarna's reason alone in
+  brackets (none when Husqvarna gives none), instead of the English message of
+  the client in both languages.
 - The "listed, kept" log line prints the type of a dropped item only when it is
   a plain schema word (letters, `_`, `-`, 40 characters at most); otherwise
   "(unexpected type)".
