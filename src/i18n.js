@@ -94,8 +94,8 @@ export const T = {
     fr: `Husqvarna est injoignable : ${message}. Nouvel essai dans quelques minutes.`,
   }),
   badRequest: (message) => ({
-    en: `${message}. Retrying every 10 minutes; if it goes on, report it on the integration's repository with the Gladys logs.`,
-    fr: `${message}. Nouvel essai toutes les 10 minutes ; si cela persiste, signalez-le sur le dépôt de l'intégration avec les journaux Gladys.`,
+    en: `Husqvarna refused the request (${message}). Retrying every 10 minutes; if it goes on, report it on the integration's repository with the Gladys logs.`,
+    fr: `Husqvarna a refusé la requête (${message}). Nouvel essai toutes les 10 minutes ; si cela persiste, signalez-le sur le dépôt de l'intégration avec les journaux Gladys.`,
   }),
   noMower: {
     en: 'Connected to Husqvarna, but the account has no mower. The key and secret give access to the mowers of the Husqvarna account that created the application on the Developer Portal: it must be the Automower Connect account where the mower is paired (same e-mail), and the mower must be connected (Automower Connect, not Bluetooth only). Details in the Gladys logs.',

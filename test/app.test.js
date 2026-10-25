@@ -395,11 +395,11 @@ test('outages: Husqvarna down, then the API limit; the loop retries at its pace'
   assert.equal(gladys.fake.connectionStatus.connected, false);
   assert.match(
     gladys.fake.connectionStatus.message.en,
-    /^Husqvarna refused the request: Not Acceptable\. Retrying every 10 minutes/,
+    /^Husqvarna refused the request \(Husqvarna refused the request: Not Acceptable\)\. Retrying every 10 minutes/,
   );
   assert.match(
     gladys.fake.connectionStatus.message.fr,
-    /^Husqvarna refused the request.*toutes les 10 minutes/,
+    /^Husqvarna a refusé la requête \(Husqvarna refused the request: Not Acceptable\)\. Nouvel essai toutes les 10 minutes/,
   );
   assert.equal(app.fatal, undefined, 'not final');
   const refused = count(/GET api\/mowers$/);

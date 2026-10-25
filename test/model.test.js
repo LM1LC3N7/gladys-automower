@@ -80,6 +80,10 @@ test('the invalid "0-0" mower and other JSON:API items are left out', () => {
   assert.equal(mowerItemRejection(one), null);
   assert.equal(mowerItemRejection({ ...one, id: '0-0' }), 'id "0-0" (placeholder)');
   assert.equal(mowerItemRejection({ ...one, type: 'workArea' }), 'type "workArea"');
+  // Only a schema word is echoed: anything else (spaces, quotes, too long) is not.
+  assert.equal(mowerItemRejection({ ...one, type: 'a b' }), 'type (unexpected type)');
+  assert.equal(mowerItemRejection({ ...one, type: 'x'.repeat(41) }), 'type (unexpected type)');
+  assert.equal(mowerItemRejection({ ...one, type: 7 }), 'type (unexpected type)');
   assert.equal(mowerItemRejection({ id: 'x' }), 'no attributes');
   assert.equal(mowerItemRejection({ attributes: {} }), 'no id');
   assert.equal(mowerItemRejection(null), 'not an object (null)');

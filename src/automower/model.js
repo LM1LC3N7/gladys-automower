@@ -128,7 +128,8 @@ export function mowerItemRejection(item) {
     return `id "${INVALID_MOWER_ID}" (placeholder)`;
   }
   if (item.type !== undefined && item.type !== 'mower') {
-    return `type "${String(item.type).slice(0, 40)}"`;
+    // A JSON:API type is a schema word: anything else is not echoed in the log.
+    return /^[a-zA-Z_-]{1,40}$/.test(item.type) ? `type "${item.type}"` : 'type (unexpected type)';
   }
   if (!item.attributes || typeof item.attributes !== 'object') {
     return 'no attributes';
