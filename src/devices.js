@@ -127,8 +127,8 @@ export function buildMowerDevice(gladys, mower) {
           keep_history: false,
           // No mapping pass for a mower: only Idle and Clean in the select.
           supported_options: [
-            { value: RUN_MODE.IDLE, label: { en: 'Pause', fr: 'Pause' }, sort_order: 1 },
-            { value: RUN_MODE.CLEANING, label: { en: 'Mow', fr: 'Tondre' }, sort_order: 2 },
+            { value: RUN_MODE.IDLE, label: 'Pause', sort_order: 1 },
+            { value: RUN_MODE.CLEANING, label: 'Mow', sort_order: 2 },
           ],
         },
       ),
