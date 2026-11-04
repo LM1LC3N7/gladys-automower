@@ -16,6 +16,7 @@ import {
   wallClockMs,
   wallClockToInstant,
 } from '../src/automower/model.js';
+import { createFakeGladys } from '@gladysassistant/integration-sdk/testing';
 import { KNOWN_CODES, errorText } from '../src/automower/codes.js';
 import { normalizeConfig } from '../src/config.js';
 import { DOCK_STATE } from '../src/constants.js';
@@ -27,6 +28,7 @@ import {
   parseExternalId,
   runModeOf,
 } from '../src/devices.js';
+import { assertCoreDevice } from './helpers/coreFeature.js';
 import { FIXTURE_NOW, PELOUSE, fixture } from './helpers/fakeFetch.js';
 
 const PARIS = { timeZone: 'Europe/Paris' };
@@ -249,4 +251,14 @@ test('one device per mower, its feature keys and its states', () => {
   assert.ok(en.some((s) => s.text === 'Trapped'));
   assert.ok(en.some((s) => s.text === 'Stopped in the garden'));
   assert.ok(en.some((s) => s.device_feature_external_id.endsWith(':error_code') && s.state === 9));
+});
+
+test('every feature of every mower has a numeric min and max and the other core fields', () => {
+  const gladys = createFakeGladys({ selector: 'automower' });
+  let features = 0;
+  for (const item of items()) {
+    const device = buildMowerDevice(gladys, mowerOf(item, PARIS));
+    features += assertCoreDevice(device, device.name);
+  }
+  assert.equal(features, items().length * 10);
 });

@@ -7,7 +7,7 @@ human contributors.
 
 A Gladys Assistant **external integration** of type `device`: a Node.js
 service (Node 22+, ESM, no build step) in its own sandboxed Docker container,
-talking to Gladys through `@gladysassistant/integration-sdk` (v0.15). It
+talking to Gladys through `@gladysassistant/integration-sdk` (v0.16). It
 reads **Husqvarna Automower** robotic mowers through the official
 **Automower Connect API** (REST + websocket), with the user's own Developer
 Portal application (application key + secret, client credentials grant),
@@ -19,7 +19,7 @@ not affiliated with Husqvarna. Next to Worx Landroid (someone else's module).
 
 ```bash
 npm install
-npm test                                  # node --test, the built-in runner
+npm test                                  # node --test --test-timeout=60000
 node --test test/app.test.js              # one file
 npm run lint                              # ESLint
 npm run format:check                      # Prettier, as the CI runs it
@@ -144,6 +144,12 @@ test/helpers/             fake Husqvarna (fetch), fake socket, fake timers;
 - **Tests never touch the network** (`installFetch` replaces `fetch`, the
   event stream takes a socket factory); the widget contents pass the SDK's
   `validateWidgetContent`.
+- **Features follow the core model.** Every feature has a numeric `min` and
+  `max` (0/0 for text and select), `read_only` and `has_feedback`: Gladys
+  answers HTTP 422 otherwise, and the SDK's fake Gladys does not check it
+  (`test/helpers/coreFeature.js` does). No device carries `poll_frequency`
+  (Gladys 5.3 polls a device with `poll_frequency` unless it says
+  `should_poll: false`).
 
 ## CI and pushes
 
